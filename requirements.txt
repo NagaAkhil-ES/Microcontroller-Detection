@@ -1,0 +1,10 @@
+numpy==1.23.0
+pandas==1.4.3
+Pillow==8.4.0
+pyyaml==6.0
+matplotlib==3.3.4
+tqdm==4.64.0
+scikit-learn==1.0.2
+torch-lr-finder
+# torch==1.10.2+cu113
+# torchvision==0.11.3+cu113

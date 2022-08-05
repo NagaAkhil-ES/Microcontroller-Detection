@@ -1,3 +1,5 @@
-*.jpg
-*.xml
-*.zip
+env
+__pycache__
+*.ipynb
+/data
+/models
