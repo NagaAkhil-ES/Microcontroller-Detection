@@ -14,6 +14,10 @@ def listdir(directory, file_ext):
         files.sort(key=get_digits)
     return files
 
+def setup_save_dir(save_dir):
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+
 # unti testing
 if __name__ == "__main__":
     # import pdb;pdb.set_trace()

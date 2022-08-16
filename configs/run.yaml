@@ -1,0 +1,4 @@
+exp_name: "exp1_1"
+num_workers: 40
+device_type: "gpu"
+gpu_id: "0"

@@ -1,0 +1,30 @@
+train_csv_path: "data/csvs/train_s137.csv"
+val_csv_path: data/csvs/val_s137.csv
+classes: ['__background__', 'Arduino_Nano', 'ESP8266', 'Raspberry_Pi_3', 'Heltec_ESP32_Lora']
+num_classes: 5
+batch_size: 4
+lr: 0.5e-4
+frame_shape: [200, 200] # [W, H]
+mean: [0.2947157025337219, 0.21146990358829498, 0.2231939733028412]
+std: [0.29502108693122864, 0.23328842222690582, 0.24320556223392487]
+train_transforms:
+  RandomRotation:
+    apply: False
+    degrees: 30
+    expand: True
+  RandomHorizontalFlip:
+    apply: False
+    p: 0.5
+  RandomVerticalFlip:
+    apply: False
+    p: 0.5
+  ColorJitter:
+    apply: True
+    brightness: 0.1
+    contrast: 0.2
+    saturation: 0
+    hue: 0
+random_seed: 137
+epochs: 10
+model_arch: "frcnn-mobilenet"
+ptm_path: null
