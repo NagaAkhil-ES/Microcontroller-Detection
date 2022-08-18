@@ -101,3 +101,42 @@ iscrowd
 
 image_id
 <class 'torch.Tensor'> torch.int64 torch.Size([1]) tensor([101826]) 
+
+
+# DataLoader without collate function
+dataloader item: 
+
+img
+<class 'torch.Tensor'> torch.float32 torch.Size([4, 3, 200, 200]) tensor(0.) tensor(1.) 
+
+{'boxes': tensor([[[ 79.2500,  88.3333, 139.0000, 114.0000]],
+
+        [[ 72.5000,  79.6667, 128.5000, 129.0000]],
+
+        [[ 48.5000,  66.6667, 167.2500, 177.0000]],
+
+        [[ 95.7500, 112.0000, 147.7500, 148.0000]]]), 'labels': tensor([[1],
+        [2],
+        [3],
+        [1]]), 'area': tensor([[ 1533.5831],
+        [ 2762.6667],
+        [13102.0840],
+        [ 1872.0000]]), 'iscrowd': tensor([[0],
+        [0],
+        [0],
+        [0]]), 'image_id': tensor([[101826],
+        [101903],
+        [101915],
+        [102013]])}
+<class 'dict'>
+
+
+# Dataloader with collate function
+
+dataloader item: 
+
+img
+<class 'torch.Tensor'> torch.float32 torch.Size([4, 3, 200, 200]) tensor(0.) tensor(1.) 
+
+target <class 'tuple'>
+({'boxes': tensor([[ 79.2500,  88.3333, 139.0000, 114.0000]]), 'labels': tensor([1]), 'area': tensor([1533.5831]), 'iscrowd': tensor([0]), 'image_id': tensor([101826])}, {'boxes': tensor([[ 72.5000,  79.6667, 128.5000, 129.0000]]), 'labels': tensor([2]), 'area': tensor([2762.6667]), 'iscrowd': tensor([0]), 'image_id': tensor([101903])}, {'boxes': tensor([[ 48.5000,  66.6667, 167.2500, 177.0000]]), 'labels': tensor([3]), 'area': tensor([13102.0840]), 'iscrowd': tensor([0]), 'image_id': tensor([101915])}, {'boxes': tensor([[ 95.7500, 112.0000, 147.7500, 148.0000]]), 'labels': tensor([1]), 'area': tensor([1872.]), 'iscrowd': tensor([0]), 'image_id': tensor([102013])})
