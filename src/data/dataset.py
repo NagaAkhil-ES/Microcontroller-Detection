@@ -7,6 +7,7 @@ import torch
 from torch.utils.data import Dataset
 from torchvision.transforms import ToTensor
 from pathlib import Path
+import numpy as np
 
 # Custom dataset as data structure
 class CustomDataset_df(Dataset):
@@ -44,28 +45,32 @@ class CustomDataset_df(Dataset):
 
         # read image
         img = Image.open(row.image_path).convert("RGB")
-        img = ToTensor()(img)
+        img = np.array(img, dtype="float32")/255
         
-        # read target
+        # read bbox and labels
         boxes = [[row.xmin, row.ymin, row.xmax, row.ymax]]
-        boxes = torch.as_tensor(boxes, dtype=torch.float32)
+        labels = [self.l_classes.index(row.type)]
+        
+        # apply transformation
+        if self.transforms is not None:
+            sample = self.transforms(image=img, bboxes=boxes, labels=labels)
+            img = sample['image']
+            boxes = sample['bboxes']
 
+        # convert img and target to tensor
+        img = ToTensor()(img)
+        boxes = torch.as_tensor(boxes, dtype=torch.float32)
+        labels = torch.as_tensor(labels, dtype=torch.int64)
         area = (boxes[:, 3] - boxes[:, 1]) * (boxes[:, 2] - boxes[:, 0])
         iscrowd = torch.zeros((boxes.shape[0],), dtype=torch.int64)
-
-        labels = [self.l_classes.index(row.type)]
-        labels = torch.as_tensor(labels, dtype=torch.int64)
-
+        
+        # read image id
         filename = Path(row.image_path).stem
         image_id = int(filename.split("_")[-1])
         image_id = torch.tensor([image_id])
 
         target = {"boxes": boxes, "labels": labels, "area":area, 
                  "iscrowd": iscrowd, "image_id": image_id}
-        
-        # apply transformation
-        if self.transforms is not None:
-            img, target = self.transforms(img, target)
 
         return img, target
 
@@ -87,10 +92,12 @@ class CustomDataset_df(Dataset):
 if __name__ == "__main__":
     import pandas as pd
     from util.config import get_config
+    from data.transforms import get_transforms
     
     params = get_config("configs/params.yaml")
     meta_df = pd.read_csv(params.train_csv_path)
-    d_set = CustomDataset_df(meta_df, params.classes)
+    transforms = get_transforms(params, normalize=True)
+    d_set = CustomDataset_df(meta_df, params.classes, transforms)
     
     # import pdb; pdb.set_trace()
     img, target = d_set[0] # get a item
@@ -99,22 +106,3 @@ if __name__ == "__main__":
     for key, value in target.items():
         print(key)
         print(type(value), value.dtype, value.shape, value, "\n")
-
-    # Sample output
-    # img
-    # <class 'torch.Tensor'> torch.float32 torch.Size([3, 600, 800]) tensor(0.0118) tensor(0.9882) 
-
-    # boxes
-    # <class 'torch.Tensor'> torch.float32 torch.Size([1, 4]) tensor([[317., 265., 556., 342.]]) 
-
-    # labels
-    # <class 'torch.Tensor'> torch.int64 torch.Size([1]) tensor([1]) 
-
-    # area
-    # <class 'torch.Tensor'> torch.float32 torch.Size([1]) tensor([18403.]) 
-
-    # iscrowd
-    # <class 'torch.Tensor'> torch.int64 torch.Size([1]) tensor([0]) 
-
-    # image_id
-    # <class 'torch.Tensor'> torch.int64 torch.Size([1]) tensor([101826]) 

@@ -6,5 +6,6 @@ matplotlib==3.3.4
 tqdm==4.64.0
 scikit-learn==1.0.2
 torch-lr-finder
+albumentations==1.2.1
 # torch==1.10.2+cu113
 # torchvision==0.11.3+cu113

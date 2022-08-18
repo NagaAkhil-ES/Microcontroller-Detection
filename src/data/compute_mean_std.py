@@ -10,9 +10,9 @@ if __name__ == "__main__":
     params = get_config(config_path, f_show=False)
     
     # Compose transforms with normalization
-    trf = get_transforms(params, mode="train", normalize=True)
+    trf = get_transforms(params, is_train=True, normalize=True)
     # Compose transforms with no normalization
-    trf_nonorm = get_transforms(params, mode="train", normalize=False)
+    trf_nonorm = get_transforms(params, is_train=True, normalize=False)
 
     # Create dataset
     meta_df = pd.read_csv(params.train_csv_path)
@@ -20,8 +20,8 @@ if __name__ == "__main__":
     d_set_nonorm = CustomDataset_df(meta_df, params.classes, trf_nonorm)
 
     # Find mean and std
-    mean, std = d_set.get_mean_std(n_samples=1000)
-    mean_nonorm, std_nonorm = d_set_nonorm.get_mean_std(n_samples=1000)
+    mean, std = d_set.get_mean_std(n_samples=100)
+    mean_nonorm, std_nonorm = d_set_nonorm.get_mean_std(n_samples=100)
     print(f"After normalization using the mean and std present in {config_path}")
     print(f"---\nmean: {mean.tolist()}\nstd: {std.tolist()}\n---")
     print("If you don't see mean ~ 0, std ~ 1,")
