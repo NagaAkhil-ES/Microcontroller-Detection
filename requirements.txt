@@ -9,3 +9,4 @@ torch-lr-finder
 albumentations==1.2.1
 # torch==1.10.2+cu113
 # torchvision==0.11.3+cu113
+pytorch-lightning==1.7.2
