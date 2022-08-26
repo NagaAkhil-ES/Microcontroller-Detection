@@ -43,3 +43,25 @@ class Trainer:
             if self.valid_dl is not None:
                 valid_loss = self._run_epoch(is_train=False)
         print(f"\nModel Training completed!")
+
+# unit testing
+if __name__ == '__main__':
+    from util.config import get_configs
+    from data.loader import get_data_loader
+    from model.loader import get_model
+    from util.env import seed_everything
+
+    # load parameters and run args
+    params = get_configs("configs/run.yaml", "configs/params.yaml", f_show=False)
+    seed_everything(params.random_seed)
+    
+    # Dataloader
+    train_loader = get_data_loader(params, mode="train")
+    val_loader = get_data_loader(params, mode="val")
+
+    # Model
+    model = get_model(params.model_arch, params.num_classes, params.lr)
+
+    # Trainer
+    tr = Trainer(model, train_loader, val_loader, "cuda:0")
+    tr.fit(params.max_epochs)
