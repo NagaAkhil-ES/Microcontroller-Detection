@@ -94,7 +94,7 @@ tensor([0.4036, 0.3916, 0.3476, 0.3458, 0.3443], device='cuda:0')
 tensor([0.4036, 0.3916, 0.3476, 0.3458, 0.3443], device='cuda:0')
 
 # conclusion
-- code is deteministic
+- code is not deteministic but we are getting very close values in different runs
 - val_step loss with train_loader is equal to train_step loss with train_loader
 - eval_forward's detection output is same as self.model output in val_step
 - therefore, eval_forward's outputs are correct
