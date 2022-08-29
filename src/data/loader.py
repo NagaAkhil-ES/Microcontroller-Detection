@@ -1,14 +1,10 @@
 """ Script of Get API to setup and return pytorch data loader from params.yml"""
-import os
 import pandas as pd
 from torch.utils.data import DataLoader
-from PIL import ImageDraw
-from torchvision.transforms import ToPILImage
 from torch import stack as t_stack
 
 from data.dataset import CustomDataset_df
 from data.transforms import get_transforms
-from util.utils import setup_save_dir
 
 def get_data_loader(params, mode, normalize=True):
     """ Get API to setup and return pytorch data loader from params.yml for both
@@ -40,22 +36,10 @@ def collate_fn(batch):
     sample[0] = t_stack(sample[0])
     return sample
 
-def save_transformed_images(images, targets, save_dir):
-    # import pdb; pdb.set_trace()
-    for i, target in enumerate(targets):
-        image = ToPILImage()(images[i])
-        img_draw = ImageDraw.Draw(image)
-        for box in target["boxes"]:
-            img_draw.rectangle(box.tolist(), outline="red")
-        
-        setup_save_dir(save_dir)
-        image_id = int(target["image_id"])
-        save_path = os.path.join(save_dir, f"{image_id}.png")
-        image.save(save_path)    
-    
 # Main block
 if __name__ == "__main__":
     from util.config import get_configs
+    from data.viz import save_transformed_images
 
     params = get_configs("configs/run.yaml", "configs/params.yaml", f_show=False)
     dl = get_data_loader(params, mode="train", normalize=False)
@@ -68,4 +52,4 @@ if __name__ == "__main__":
     print("target", type(targets))
     print(targets)
 
-    save_transformed_images(images, targets, "reports/data_loader/album/test1")
+    save_transformed_images(images, targets, "data/testing/data_loader/test1_album")
