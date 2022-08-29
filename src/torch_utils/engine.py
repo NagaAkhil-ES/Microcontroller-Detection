@@ -150,4 +150,4 @@ def evaluate(
     coco_evaluator.accumulate()
     stats = coco_evaluator.summarize()
     torch.set_num_threads(n_threads)
-    return coco_evaluator, stats, val_saved_image
+    return coco_evaluator, stats# , val_saved_image
