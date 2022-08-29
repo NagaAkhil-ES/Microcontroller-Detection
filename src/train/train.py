@@ -7,7 +7,7 @@ import pytorch_lightning as pl
 if __name__ == '__main__':
     # load parameters and run args
     params = get_configs("configs/run.yaml", "configs/params.yaml", f_show=True)
-    seed_everything(params.random_seed)
+    seed_everything(params.random_seed, use_deterministic_algorithms=True)
     
     # Dataloader
     train_loader = get_data_loader(params, mode="train")
