@@ -18,6 +18,6 @@ if __name__ == '__main__':
 
     # Trainer
     trainer = pl.Trainer(accelerator=params.accelerator, devices=params.devices, 
-                        max_epochs=params.max_epochs)
+                        max_epochs=params.max_epochs) #, num_sanity_val_steps=0)
     trainer.fit(model=model, train_dataloaders=train_loader,
                 val_dataloaders=val_loader)
