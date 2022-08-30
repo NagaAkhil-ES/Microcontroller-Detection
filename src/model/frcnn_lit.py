@@ -10,12 +10,14 @@ from torchvision.models.detection.roi_heads import fastrcnn_loss
 from torchvision.models.detection.rpn import concat_box_prediction_layers
 
 from torchvision.ops import nms as tv_nms
+from torchmetrics.detection.mean_ap import MeanAveragePrecision
 
 class FasterRCNNLightning(pl.LightningModule):
     def __init__(self, backbone, num_classes, lr):
         super().__init__()
         self.model = self._get_model(backbone, num_classes) # model
         self.lr = lr #learning rate
+        self.map_score = MeanAveragePrecision()
         
     def _get_model(self, backbone, num_classes):
         if backbone == "mobilenet":
@@ -144,7 +146,11 @@ class FasterRCNNLightning(pl.LightningModule):
         b_image, b_target = batch
         loss_dict, b_pred = self.eval_forward(self.model, b_image, b_target)
         loss = sum(loss for loss in loss_dict.values())
+        self.map_score.update(b_pred, b_target)
         return loss   
+    
+    def validation_epoch_end(self, outputs):
+        map_dict = self.map_score.compute()
 
     def apply_nms(self, targets):
         for target in targets:
