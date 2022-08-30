@@ -9,6 +9,8 @@ from collections import OrderedDict
 from torchvision.models.detection.roi_heads import fastrcnn_loss
 from torchvision.models.detection.rpn import concat_box_prediction_layers
 
+from torchvision.ops import nms as tv_nms
+
 class FasterRCNNLightning(pl.LightningModule):
     def __init__(self, backbone, num_classes, lr):
         super().__init__()
@@ -143,6 +145,19 @@ class FasterRCNNLightning(pl.LightningModule):
         loss_dict, b_pred = self.eval_forward(self.model, b_image, b_target)
         loss = sum(loss for loss in loss_dict.values())
         return loss   
+
+    def apply_nms(self, targets):
+        for target in targets:
+            keep = tv_nms(target["boxes"], target["scores"], 0.3)
+            target["boxes"] = target["boxes"][keep]
+            target["labels"] = target["labels"][keep]
+            target["scores"] = target["scores"][keep]
+            
+        ''' detections = self.apply_nms(detections)
+        from data.loader import save_transformed_images
+        save_transformed_images(b_image, detections, "data/testing/with_nms1")
+        import pdb; pdb.set_trace() '''
+        return targets
 
     def configure_optimizers(self):
         optimizer = optim.SGD(self.model.parameters(), lr=self.lr)
