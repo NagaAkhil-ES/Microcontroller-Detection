@@ -98,3 +98,79 @@ tensor([0.4036, 0.3916, 0.3476, 0.3458, 0.3443], device='cuda:0')
 - val_step loss with train_loader is equal to train_step loss with train_loader
 - eval_forward's detection output is same as self.model output in val_step
 - therefore, eval_forward's outputs are correct
+
+
+# Evaluation of validation predictions
+
+
+option1: train_one_epoch, evaluate
+option2: torch metrics
+option3: getpascal voc metrics
+
+## coco evaluator (option1) per batch
+
+IoU metric: bbox
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.028
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.210
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.003
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = -1.000
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.043
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = -1.000
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.017
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.183
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.333
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = -1.000
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.333
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = -1.000
+
+## torchmetric map(option2) per batch
+{'map': tensor(0.0281), 
+'map_50': tensor(0.2097), 
+'map_75': tensor(0.0032), 
+'map_small': tensor(-1.), 
+'map_medium': tensor(0.0425), 
+'map_large': tensor(-1.), 
+'mar_1': tensor(0.0167), 
+'mar_10': tensor(0.1833), 
+'mar_100': tensor(0.3333), 
+'mar_small': tensor(-1.), 
+'mar_medium': tensor(0.3333), 
+'mar_large': tensor(-1.), 
+'map_per_class': tensor(-1.), 
+'mar_100_per_class': tensor(-1.)}
+
+
+## Option 1 for 1 epoch
+
+IoU metric: bbox
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.012
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ] = 0.059
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=100 ] = 0.003
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.011
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.025
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.005
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=  1 ] = 0.025
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets= 10 ] = 0.253
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.316
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=100 ] = 0.400
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=100 ] = 0.374
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=100 ] = 0.100
+
+ ## option 2 for one epoch
+{'map': tensor(0.0113), 
+'map_50': tensor(0.0579), 
+'map_75': tensor(0.0025), 
+'map_small': tensor(0.0111), 
+'map_medium': tensor(0.0242), 
+'map_large': tensor(0.0042), 
+'mar_1': tensor(0.0250), 
+'mar_10': tensor(0.2531), 
+'mar_100': tensor(0.3156), 
+'mar_small': tensor(0.4000), 
+'mar_medium': tensor(0.3736), 
+'mar_large': tensor(0.1000), 
+'map_per_class': tensor(-1.), 
+'mar_100_per_class': tensor(-1.)}
+
+## Conclusion
+- option 2 is feasible to implement so, we will go with torch metrics MAP

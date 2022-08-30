@@ -91,6 +91,7 @@ def _get_iou_types(model):
         iou_types.append("keypoints")
     return iou_types
 
+from torchmetrics.detection.mean_ap import MeanAveragePrecision
 
 @torch.inference_mode()
 def evaluate(
@@ -109,6 +110,7 @@ def evaluate(
     model.eval()
     metric_logger = utils.MetricLogger(delimiter="  ")
     header = "Test:"
+    metric = MeanAveragePrecision()
 
     coco = get_coco_api_from_dataset(data_loader.dataset)
     iou_types = _get_iou_types(model)
@@ -130,6 +132,7 @@ def evaluate(
         res = {target["image_id"].item(): output for target, output in zip(targets, outputs)}
         evaluator_time = time.time()
         coco_evaluator.update(res)
+        metric.update(outputs, targets)
         evaluator_time = time.time() - evaluator_time
         metric_logger.update(model_time=model_time, evaluator_time=evaluator_time)
 
@@ -140,6 +143,7 @@ def evaluate(
             val_saved_image = save_validation_results(
                 images, outputs, counter, out_dir, classes, colors
             )
+        # break
 
     # gather the stats from all processes
     metric_logger.synchronize_between_processes()
@@ -149,5 +153,6 @@ def evaluate(
     # accumulate predictions from all images
     coco_evaluator.accumulate()
     stats = coco_evaluator.summarize()
+    print(metric.compute())
     torch.set_num_threads(n_threads)
     return coco_evaluator, stats# , val_saved_image

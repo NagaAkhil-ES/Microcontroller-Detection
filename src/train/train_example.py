@@ -23,7 +23,7 @@ if __name__ == "__main__":
     optimizer = optim.SGD(model.parameters(), lr=params.lr)
 
     # train one epoch
-    train_loss_hist = Averager()
-    train_one_epoch(model, optimizer, train_loader, device, epoch=1, train_loss_hist=train_loss_hist, print_freq=1)
-    _,stats= evaluate(model, val_loader, device=device)
-    print(stats)
+    # import pdb; pdb.set_trace()
+    # train_loss_hist = Averager()
+    # train_one_epoch(model, optimizer, train_loader, device, epoch=1, train_loss_hist=train_loss_hist, print_freq=1)
+    evaluate(model, val_loader, device=device)
