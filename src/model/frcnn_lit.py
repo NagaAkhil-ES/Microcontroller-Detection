@@ -140,7 +140,7 @@ class FasterRCNNLightning(pl.LightningModule):
 
     def validation_step(self, batch, batch_idx):
         b_image, b_target = batch
-        loss_dict, detections = self.eval_forward(self.model, b_image, b_target)
+        loss_dict, b_pred = self.eval_forward(self.model, b_image, b_target)
         loss = sum(loss for loss in loss_dict.values())
         return loss   
 
