@@ -39,9 +39,10 @@ class FasterRCNNLightning(pl.LightningModule):
         b_image, b_target = batch
         loss_dict = self.model(b_image, b_target)
         loss = sum(loss for loss in loss_dict.values())
-        # self.log_dict(loss_dict)  # self.log("train_loss", loss)
-        return loss
-
+        self.log("train_loss", loss, prog_bar=True)
+        self.log_dict(loss_dict)
+        return loss 
+        
     def eval_forward(self, model, images, targets):
         """
         # type: (List[Tensor], Optional[List[Dict[str, Tensor]]]) -> Tuple[Dict[str, Tensor], List[Dict[str, Tensor]]]
@@ -158,10 +159,14 @@ class FasterRCNNLightning(pl.LightningModule):
         loss = sum(loss for loss in loss_dict.values())
         self.map_score.update(b_pred, b_target)
         iou = torch.stack([self._evaluate_iou(t, o) for t, o in zip(b_target, b_pred)]).mean()
+        self.log("val_loss", loss, prog_bar=True)
+        self.log("val_iou", iou, prog_bar=True, on_epoch=True)
         return loss   
     
     def validation_epoch_end(self, outputs):
         map_dict = self.map_score.compute()
+        self.log_dict(map_dict)
+        self.log("val_map", map_dict["map"], prog_bar=True)
 
     def apply_nms(self, targets):
         for target in targets:
