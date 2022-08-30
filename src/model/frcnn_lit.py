@@ -11,6 +11,7 @@ from torchvision.models.detection.rpn import concat_box_prediction_layers
 
 from torchvision.ops import nms as tv_nms
 from torchmetrics.detection.mean_ap import MeanAveragePrecision
+from torchvision.ops import box_iou
 
 class FasterRCNNLightning(pl.LightningModule):
     def __init__(self, backbone, num_classes, lr):
@@ -18,7 +19,7 @@ class FasterRCNNLightning(pl.LightningModule):
         self.model = self._get_model(backbone, num_classes) # model
         self.lr = lr #learning rate
         self.map_score = MeanAveragePrecision()
-        
+           
     def _get_model(self, backbone, num_classes):
         if backbone == "mobilenet":
             # load Faster RCNN pre-trained model
@@ -142,11 +143,21 @@ class FasterRCNNLightning(pl.LightningModule):
         losses.update(proposal_losses)
         return losses, detections
 
+    def _evaluate_iou(self,target, pred):
+        """Evaluate intersection over union (IOU) for target from dataset and output prediction from
+        model."""
+
+        if pred["boxes"].shape[0] == 0:
+            # no box detected, 0 IOU
+            return torch.tensor(0.0, device=pred["boxes"].device)
+        return box_iou(target["boxes"], pred["boxes"]).diag().mean()
+
     def validation_step(self, batch, batch_idx):
         b_image, b_target = batch
         loss_dict, b_pred = self.eval_forward(self.model, b_image, b_target)
         loss = sum(loss for loss in loss_dict.values())
         self.map_score.update(b_pred, b_target)
+        iou = torch.stack([self._evaluate_iou(t, o) for t, o in zip(b_target, b_pred)]).mean()
         return loss   
     
     def validation_epoch_end(self, outputs):
