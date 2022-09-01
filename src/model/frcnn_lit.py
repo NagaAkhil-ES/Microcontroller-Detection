@@ -39,9 +39,13 @@ class FasterRCNNLightning(pl.LightningModule):
         b_image, b_target = batch
         loss_dict = self.model(b_image, b_target)
         loss = sum(loss for loss in loss_dict.values())
-        self.log("train_loss", loss, prog_bar=True)
-        self.log_dict(loss_dict)
         return loss 
+    
+    def training_epoch_end(self, outputs):
+        l_loss = torch.stack([i["loss"] for i in outputs])
+        train_loss =  l_loss[-10:].mean()
+        self.logger.experiment.add_scalars('loss', {'train': train_loss}, 
+                                            self.current_epoch+1) 
         
     def eval_forward(self, model, images, targets):
         """
@@ -159,14 +163,21 @@ class FasterRCNNLightning(pl.LightningModule):
         loss = sum(loss for loss in loss_dict.values())
         self.map_score.update(b_pred, b_target)
         iou = torch.stack([self._evaluate_iou(t, o) for t, o in zip(b_target, b_pred)]).mean()
-        self.log("val_loss", loss, prog_bar=True)
-        self.log("val_iou", iou, prog_bar=True, on_epoch=True)
-        return loss   
-    
+        return {'loss': loss, "iou":iou} 
+
     def validation_epoch_end(self, outputs):
+        l_loss = torch.stack([i["loss"] for i in outputs])
+        val_loss =  l_loss.mean()
+        self.logger.experiment.add_scalars('loss', {'val': val_loss}, 
+                                            self.current_epoch+1)
+      
         map_dict = self.map_score.compute()
-        self.log_dict(map_dict)
-        self.log("val_map", map_dict["map"], prog_bar=True)
+        val_map = map_dict["map"]
+        self.logger.experiment.add_scalar("val_map", val_map, self.current_epoch+1)
+
+        l_iou = torch.stack([i["iou"] for i in outputs])
+        val_iou = l_iou.mean()
+        self.logger.experiment.add_scalar("val_iou", val_iou, self.current_epoch+1)
 
     def apply_nms(self, targets):
         for target in targets:
@@ -182,5 +193,5 @@ class FasterRCNNLightning(pl.LightningModule):
         return targets
 
     def configure_optimizers(self):
-        optimizer = optim.SGD(self.model.parameters(), lr=self.lr)
+        optimizer = optim.Adam(self.model.parameters(), lr=self.lr)
         return optimizer
