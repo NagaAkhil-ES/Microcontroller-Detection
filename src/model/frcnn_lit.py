@@ -170,10 +170,13 @@ class FasterRCNNLightning(pl.LightningModule):
         val_loss =  l_loss.mean()
         self.logger.experiment.add_scalars('loss', {'val': val_loss}, 
                                             self.current_epoch+1)
-      
+        self.log("val_loss", val_loss, prog_bar=False, logger=False)
+
         map_dict = self.map_score.compute()
         val_map = map_dict["map"]
         self.logger.experiment.add_scalar("val_map", val_map, self.current_epoch+1)
+        self.log_dict({"val_map": val_map, "val_map_small": map_dict["map_small"],
+                       "val_map_large": map_dict["map_large"] }, logger=False)
 
         l_iou = torch.stack([i["iou"] for i in outputs])
         val_iou = l_iou.mean()
