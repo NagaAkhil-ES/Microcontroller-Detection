@@ -42,7 +42,7 @@ if __name__ == '__main__':
     # Trainer
     trainer = pl.Trainer(accelerator=params.accelerator, devices=params.devices, 
                         max_epochs=params.max_epochs, logger=logger, 
-                        num_sanity_val_steps=0, log_every_n_steps=10,
+                        num_sanity_val_steps=0, log_every_n_steps=1,
                         callbacks=l_callbacks)
     trainer.fit(model=model, train_dataloaders=train_loader,
                 val_dataloaders=val_loader)

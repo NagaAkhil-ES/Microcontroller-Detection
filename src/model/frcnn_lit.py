@@ -174,7 +174,13 @@ class FasterRCNNLightning(pl.LightningModule):
 
         map_dict = self.map_score.compute()
         val_map = map_dict["map"]
+        val_map_small = map_dict["map_small"]
+        val_map_large = map_dict["map_large"]
+
         self.logger.experiment.add_scalar("val_map", val_map, self.current_epoch+1)
+        self.logger.experiment.add_scalar("val_map_small", val_map_small, self.current_epoch+1)
+        self.logger.experiment.add_scalar("val_map_large", val_map_large, self.current_epoch+1)
+        
         self.log_dict({"val_map": val_map, "val_map_small": map_dict["map_small"],
                        "val_map_large": map_dict["map_large"] }, logger=False)
 
